@@ -1,3 +1,40 @@
-:2080
+# Access to everything.
+(authorised-super-users) {
+}
 
-reverse_proxy :5052
+# Access to first ring.
+(authorised-first-ring) {
+}
+
+http:// {
+        log {
+                output stderr
+                format filter {
+                        wrap console
+                        fields {
+                                request>headers>Authorization delete
+                        }
+                }
+        }
+        encode gzip zstd
+
+        @proddb {
+                path /proddb/*
+        }
+
+        @testdb {
+                path /testdb/*
+        }
+
+        reverse_proxy @proddb {$DB_SERVER}:5433
+        reverse_proxy @testdb {$DB_SERVER}:5432
+
+        basicauth @proddb {
+                import authorised-super-users
+				import authorised-first-ring
+        }
+        basicauth @testdb {
+                import authorised-super-users
+				import authorised-first-ring
+        }
+}

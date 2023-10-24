@@ -13,3 +13,5 @@ services:
       - ./caddy_data:/data
       - ./caddy_config:/config
     network_mode: 'host'
+    environment:
+      - DB_SERVER=${DB_SERVER}

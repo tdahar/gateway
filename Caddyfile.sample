@@ -1,0 +1,40 @@
+# Access to everything.
+(authorised-super-users) {
+
+}
+
+# Access to first ring.
+(authorised-first-ring) {
+
+}
+
+(whitelistIP) {
+	remote_ip 0.0.0.0/0
+}
+
+https:// {
+		tls /certs/cert.crt /certs/node.key
+        log {
+                output stderr
+                format filter {
+                        wrap console
+                        fields {
+                                request>headers>Authorization delete
+                        }
+                }
+        }
+        encode gzip zstd
+
+		# ------------------------- Example --------------------------
+        @example {
+                import whitelistIP
+                path /example/*
+        }
+                basicauth @example {
+                        import authorised-first-ring
+                }
+        handle @example {
+                reverse_proxy http://localhost:5052
+                uri strip_prefix /example
+        }
+}

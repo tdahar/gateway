@@ -1,3 +1,8 @@
 caddy_data/
 caddy_config/
 site/
+.env
+Caddyfile
+certs/*.crt
+certs/*.key
+certs/.env
